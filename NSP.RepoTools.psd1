@@ -1,6 +1,6 @@
 @{
     RootModule = 'NSP.RepoTools.psm1'
-    ModuleVersion = '0.1.0'
+    ModuleVersion = '0.1.1'
     GUID = '3b984d0b-ad51-4cb6-bbfd-421cd22bcf85'
     Author = 'Network Systems Plus'
     CompanyName = 'Network Systems Plus'
@@ -23,7 +23,7 @@
             Tags = @('Git', 'Privacy', 'Repository', 'Publishing', 'NSP')
             ProjectUri = 'https://github.com/ITGuyFromIA2/NSP-RepoTools'
             LicenseUri = 'https://github.com/ITGuyFromIA2/NSP-RepoTools/blob/main/LICENSE'
-            ReleaseNotes = 'Initial module: Find-NSPClientReference, a per-user client token list, and Publish-NSPModule.'
+            ReleaseNotes = 'https://github.com/ITGuyFromIA2/NSP-RepoTools/blob/main/CHANGELOG.md'
         }
     }
 }

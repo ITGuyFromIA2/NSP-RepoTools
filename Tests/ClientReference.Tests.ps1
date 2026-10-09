@@ -69,6 +69,14 @@ Describe 'Find-NSPClientReference: working tree' {
         ($rules -join ' ') | Should -Not -Match 'contoso|example|\\\\server\\|Users\\Public|=10\.0\.0\.1|192\.0\.2|8\.8\.8\.8|odata|22621|52\.0\.0\.0|4\.0\.0\.0|2\.8\.5'
     }
 
+    It 'skips version strings, certificate OIDs, and regex-escaped names that look like addresses or shares' {
+        $text = "PowerShellGet 1.0.0.1 and PackageManagement 1.4.8.1; extension 1.0.1.40; placeholder 1.2.3.4; OID '2.5.29.19'; -Match '\\fabrikam\.local' and '\\Request-Core\.ps1'; \\fabrikam\share"
+        $repo2 = Initialize-TestRepo
+        Write-TestFile -Repo $repo2 -Name 'code.ps1' -Content $text
+        Invoke-TestGit -Repo $repo2 -GitArgument 'add', '-A'
+        @(Find-NSPClientReference -Path $repo2 -TokenPath (Join-Path $TestDrive 'none.csv') -WarningAction SilentlyContinue).Count | Should -Be 0
+    }
+
     It 'honors the repository allow list and excluded paths' {
         @($hits | Where-Object Match -EQ 'jane.doe@acmewidgets.com').Count | Should -Be 0
         @($hits | Where-Object File -Like 'Legacy/*').Count | Should -Be 0

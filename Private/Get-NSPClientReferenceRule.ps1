@@ -32,8 +32,10 @@ function Get-NSPClientReferenceRule {
             Regex = [regex]'\\\\[A-Za-z0-9._-]+\\[A-Za-z0-9$._-]+'
             Keep = {
                 param($Text)
-                $server = $Text.Substring(2).Split('\')[0]
-                $server -notmatch '(?i)^(server|servername|fileserver|fs|host|hostname|computer|computername|localhost|wsl\$|\?|\.|contoso.*|example.*)$'
+                $server, $share = $Text.Substring(2).Split('\')
+                # A share never starts with a dot: '\\name\.ext' is an escaped dot in a regex.
+                if ($share.StartsWith('.')) { return $false }
+                $server -notmatch '(?i)^(server|servername|fileserver|fs|host|hostname|computer|computername|localhost|wsl\$|\?|\.|contoso.*|fabrikam.*|example.*)$'
             }
         }
         [pscustomobject]@{
@@ -55,6 +57,8 @@ function Get-NSPClientReferenceRule {
                 if (@($o | Where-Object { $_ -gt 255 }).Count) { return $false }
                 $a = $o[0]; $b = $o[1]; $c = $o[2]
                 if ($a -in 0, 10, 127 -or $a -ge 224) { return $false }               # this-host, private, loopback, multicast, reserved
+                if ($a -eq 1) { return $false }                                       # in code, version strings (1.4.8.1) and the 1.2.3.4 placeholder
+                if ($a -eq 2 -and $b -eq 5) { return $false }                         # X.509 object identifiers (2.5.29.19)
                 if ($o[2] -eq 0 -and $o[3] -eq 0) { return $false }                   # a.b.0.0 is a network or a version, not a host
                 if ($a -eq 100 -and $b -ge 64 -and $b -le 127) { return $false }      # carrier-grade NAT
                 if ($a -eq 169 -and $b -eq 254) { return $false }                     # link-local
