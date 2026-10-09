@@ -41,7 +41,7 @@ Describe 'Find-NSPClientReference: working tree' {
                 'Tenant acmewidgets.onmicrosoft.com; sample contoso.onmicrosoft.com.'
                 'Share \\fs01\finance and \\server\share.'
                 'Profile C:\Users\jdoe\Desktop and C:\Users\Public\Desktop.'
-                'Addresses 52.10.20.30, 10.0.0.1, 192.0.2.10, 8.8.8.8, version 5.1.22621.4391.'
+                'Addresses 52.10.20.30, 10.0.0.1, 192.0.2.10, 8.8.8.8, 52.0.0.0/8; Version=4.0.0.0, -MinimumVersion ''2.8.5.201'', version 5.1.22621.4391.'
                 'Updates and dates are fine; @odata.type is not mail.'
             ) -join "`n")
         Write-TestFile -Repo $repo -Name 'Legacy\old.txt' -Content 'Acme Widgets legacy export'
@@ -66,7 +66,7 @@ Describe 'Find-NSPClientReference: working tree' {
         $rules | Should -Contain 'UncPath=\\fs01\finance'
         $rules | Should -Contain 'UserProfilePath=C:\Users\jdoe'
         $rules | Should -Contain 'PublicIPv4=52.10.20.30'
-        ($rules -join ' ') | Should -Not -Match 'contoso|example|\\\\server\\|Users\\Public|=10\.0\.0\.1|192\.0\.2|8\.8\.8\.8|odata|22621'
+        ($rules -join ' ') | Should -Not -Match 'contoso|example|\\\\server\\|Users\\Public|=10\.0\.0\.1|192\.0\.2|8\.8\.8\.8|odata|22621|52\.0\.0\.0|4\.0\.0\.0|2\.8\.5'
     }
 
     It 'honors the repository allow list and excluded paths' {

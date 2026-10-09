@@ -47,13 +47,15 @@ function Get-NSPClientReferenceRule {
         }
         [pscustomobject]@{
             Name = 'PublicIPv4'
-            Regex = [regex]'(?<![\d.])(?:\d{1,3}\.){3}\d{1,3}(?![\d.])'
+            # Not after 'version' (Version=4.0.0.0, -MinimumVersion '2.8.5.201').
+            Regex = [regex]'(?<![Vv]ersion\W{0,3})(?<![\d.])(?:\d{1,3}\.){3}\d{1,3}(?![\d.])'
             Keep = {
                 param($Text)
                 $o = @($Text.Split('.') | ForEach-Object { [int]$_ })
                 if (@($o | Where-Object { $_ -gt 255 }).Count) { return $false }
                 $a = $o[0]; $b = $o[1]; $c = $o[2]
                 if ($a -in 0, 10, 127 -or $a -ge 224) { return $false }               # this-host, private, loopback, multicast, reserved
+                if ($o[2] -eq 0 -and $o[3] -eq 0) { return $false }                   # a.b.0.0 is a network or a version, not a host
                 if ($a -eq 100 -and $b -ge 64 -and $b -le 127) { return $false }      # carrier-grade NAT
                 if ($a -eq 169 -and $b -eq 254) { return $false }                     # link-local
                 if ($a -eq 172 -and $b -ge 16 -and $b -le 31) { return $false }       # private
