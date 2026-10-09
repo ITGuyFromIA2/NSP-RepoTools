@@ -5,13 +5,14 @@
     Author = 'Network Systems Plus'
     CompanyName = 'Network Systems Plus'
     Copyright = '(c) 2026 Network Systems Plus. All rights reserved.'
-    Description = 'Maintainer tools for NSP repositories: a sweep for client references (names, tenants, addresses, e-mail, paths) in tracked files, untracked files, and Git history.'
+    Description = 'Maintainer tools for NSP repositories: a sweep for client references (names, tenants, addresses, e-mail, paths) in tracked files, untracked files, and Git history, and the checked release routine to the PowerShell Gallery.'
     PowerShellVersion = '5.1'
     FunctionsToExport = @(
         'Add-NSPClientToken'
         'Find-NSPClientReference'
         'Get-NSPClientToken'
         'Get-NSPClientTokenPath'
+        'Publish-NSPModule'
         'Remove-NSPClientToken'
     )
     CmdletsToExport = @()
@@ -20,7 +21,7 @@
     PrivateData = @{
         PSData = @{
             Tags = @('Git', 'Privacy', 'Repository', 'NSP')
-            ReleaseNotes = 'Initial module: Find-NSPClientReference and a per-user client token list.'
+            ReleaseNotes = 'Initial module: Find-NSPClientReference, a per-user client token list, and Publish-NSPModule.'
         }
     }
 }

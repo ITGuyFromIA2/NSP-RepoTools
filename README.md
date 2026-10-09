@@ -86,6 +86,43 @@ $hits | ForEach-Object { Write-Host "$($_.File):$($_.Line) [$($_.Rule)]" }
 
 Without a token list (a build agent), only the pattern rules run.
 
+## Publishing a module
+
+`Publish-NSPModule` is the release routine for every NSP module repository; it replaces each
+repo's own `tools\Publish-ToGallery.ps1`.
+
+```powershell
+Publish-NSPModule -Path . -WhatIf    # every check and the package list; publishes nothing
+Publish-NSPModule -Path .            # asks before the publish itself
+```
+
+Nothing is published unless all of these pass:
+
+| Check | Fails when |
+|---|---|
+| Manifest | There isn't exactly one module manifest at the root, `Test-ModuleManifest` fails, or `FunctionsToExport` doesn't list exactly the `Public\` files. |
+| Changelog | `CHANGELOG.md` has no heading for this version, or still marks it unreleased. |
+| Git | Anything is uncommitted or untracked, or the tag `v<version>` already exists. |
+| Version | The Gallery already has this version or a newer one. |
+| Client references | `Find-NSPClientReference -IncludeUntracked -History` finds anything, or your token list is empty. |
+| `tools\Test-Repo.ps1` | It exits non-zero (it runs in its own process). |
+| Package | The staged copy fails `Test-ModuleManifest` or doesn't import under Windows PowerShell 5.1. |
+
+The package is built from **tracked files only**, so ignored client data (local profiles,
+inventories, exports) can't ship. It leaves out `Tests\`, `tools\`, dot files, `CLAUDE.md`,
+`AGENTS.md`, `PLAN.md`, and `PSScriptAnalyzerSettings.psd1`, and is staged in a folder named after
+the module (`NSP.Console`, not the repository's `NSP-Console`). More exclusions, or a fixed list
+of top-level items, go in `.nsp-repotools.psd1`:
+
+```powershell
+@{ Publish = @{ Exclude = @('Legacy/*', 'docs/*'); Include = @() } }
+```
+
+The publish uses `Microsoft.PowerShell.PSResourceGet` (the legacy PowerShellGet reports success on
+failed publishes) with the API key from `Get-NSPSecret -Name MS.PSGallery.ApiKey` (NSP.Bootstrap).
+Afterwards it checks that the version is really live, then tags the commit `v<version>` locally
+(`-NoTag` skips that). Push the tag yourself.
+
 ## Tests
 
 ```powershell

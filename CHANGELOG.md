@@ -9,3 +9,7 @@
 - Per-user client token list outside every repository: `Get-NSPClientTokenPath`,
   `Get-NSPClientToken`, `Add-NSPClientToken` (direct, or harvested from JSON exports),
   `Remove-NSPClientToken`.
+- `Publish-NSPModule`: the release routine for NSP module repositories. Checks the manifest,
+  exports, changelog, clean tree, Gallery version, client references (history included), and the
+  repository's own `tools\Test-Repo.ps1`; packages tracked runtime files only; publishes with
+  PSResourceGet, confirms the version is live, and tags `v<version>` locally.
