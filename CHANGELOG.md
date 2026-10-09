@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.1.0 (unreleased)
+## 0.1.0
 
 - `Find-NSPClientReference`: sweeps tracked and untracked files, file paths, Git history, and
   commit messages for client tokens and for e-mail addresses, tenant names, UNC and user-profile

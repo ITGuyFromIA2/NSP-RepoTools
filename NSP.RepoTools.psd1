@@ -20,7 +20,9 @@
     AliasesToExport = @()
     PrivateData = @{
         PSData = @{
-            Tags = @('Git', 'Privacy', 'Repository', 'NSP')
+            Tags = @('Git', 'Privacy', 'Repository', 'Publishing', 'NSP')
+            ProjectUri = 'https://github.com/ITGuyFromIA2/NSP-RepoTools'
+            LicenseUri = 'https://github.com/ITGuyFromIA2/NSP-RepoTools/blob/main/LICENSE'
             ReleaseNotes = 'Initial module: Find-NSPClientReference, a per-user client token list, and Publish-NSPModule.'
         }
     }
