@@ -84,22 +84,7 @@ function Find-NSPClientReference {
             & $scanPath $relative $set.Scope $null
             $full = Join-Path $root $relative
             if (-not (Test-Path -LiteralPath $full -PathType Leaf)) { continue }
-            $bytes = [IO.File]::ReadAllBytes($full)
-            $unicode = $bytes.Length -ge 2 -and (($bytes[0] -eq 0xFF -and $bytes[1] -eq 0xFE) -or ($bytes[0] -eq 0xFE -and $bytes[1] -eq 0xFF))
-            if (-not $unicode -and [Array]::IndexOf($bytes, [byte]0) -ge 0) {
-                if (-not (Test-NSPClientReferenceAllowed -Context $context -Text $relative)) {
-                    [pscustomobject]@{ Scope = $set.Scope; File = $relative; Line = 0; Commit = $null; Rule = 'Unscanned'; Match = 'binary file'; Source = 'path' }
-                }
-                continue
-            }
-            $reader = [IO.StreamReader]::new([IO.MemoryStream]::new($bytes), [System.Text.UTF8Encoding]::new($false), $true)
-            try {
-                $number = 0
-                while ($null -ne ($text = $reader.ReadLine())) {
-                    $number++
-                    Find-NSPClientReferenceInLine -Context $context -Text $text -Scope $set.Scope -File $relative -Line $number
-                }
-            } finally { $reader.Dispose() }
+            Find-NSPClientReferenceInContent -Context $context -Bytes ([IO.File]::ReadAllBytes($full)) -Scope $set.Scope -File $relative
         }
     }
 
@@ -143,10 +128,9 @@ function Find-NSPClientReference {
         if ($text -match '^Binary files .* and (?:"?b/(.+?)"?) differ$') {
             $file = $Matches[1]
             if (-not (& $excluded $file)) {
+                # Git calls UTF-16 text binary (exports often are): read the whole file at that commit.
                 & $scanPath $file 'History' $state.Commit
-                if (-not (Test-NSPClientReferenceAllowed -Context $context -Text $file)) {
-                    [pscustomobject]@{ Scope = 'History'; File = $file; Line = 0; Commit = $state.Commit; Rule = 'Unscanned'; Match = 'binary file'; Source = 'path' }
-                }
+                Find-NSPClientReferenceInContent -Context $context -Bytes (Get-NSPGitBlob -RepoRoot $root -Commit $state.Commit -Path $file) -Scope 'History' -File $file -Commit $state.Commit
             }
             return
         }

@@ -103,18 +103,27 @@ Describe 'Find-NSPClientReference: history' {
         Write-TestFile -Repo $repo -Name 'config.txt' -Content "first line`nserver for a client"
         Invoke-TestGit -Repo $repo -GitArgument 'add', '-A'
         Invoke-TestGit -Repo $repo -GitArgument 'commit', '--quiet', '-m', "Scrub`n`nRemoved the ATES name"
-        Invoke-TestGit -Repo $repo -GitArgument 'rm', '--quiet', 'config.txt'
+        [IO.File]::WriteAllText((Join-Path $repo 'export.xml'), "<Policies>`r`n  <Name>Acme Widgets travel</Name>`r`n</Policies>", [System.Text.Encoding]::Unicode)
+        Invoke-TestGit -Repo $repo -GitArgument 'add', '-A'
+        Invoke-TestGit -Repo $repo -GitArgument 'commit', '--quiet', '-m', 'Add export'
+        Invoke-TestGit -Repo $repo -GitArgument 'rm', '--quiet', 'config.txt', 'export.xml'
         Invoke-TestGit -Repo $repo -GitArgument 'commit', '--quiet', '-m', 'Remove config'
         $script:hits = @(Find-NSPClientReference -Path $repo -TokenPath $tokenFile -History)
     }
 
     It 'finds a reference that only survives in history, with its line and commit' {
-        $hit = @($hits | Where-Object { $_.Scope -eq 'History' -and $_.Match -eq 'Acme Widgets' })
+        $hit = @($hits | Where-Object { $_.Scope -eq 'History' -and $_.Match -eq 'Acme Widgets' -and $_.File -eq 'config.txt' })
         $hit.Count | Should -Be 1
         $hit[0].File | Should -Be 'config.txt'
         $hit[0].Line | Should -Be 2
         $hit[0].Commit | Should -Match '^[0-9a-f]{7}$'
         @($hits | Where-Object Scope -EQ 'WorkingTree').Count | Should -Be 0
+    }
+
+    It 'reads a UTF-16 file that Git treats as binary' {
+        $hit = @($hits | Where-Object { $_.File -eq 'export.xml' })
+        $hit.Rule | Should -Be 'ClientToken'
+        $hit[0].Line | Should -Be 2
     }
 
     It 'searches commit messages' {

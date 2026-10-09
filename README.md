@@ -31,6 +31,7 @@ It reports:
 Scopes: `WorkingTree` (tracked files), `Untracked` (with `-IncludeUntracked`: what `git add -A`
 would pick up), `History` and `CommitMessage` (with `-History`: every line ever added on any ref,
 and every commit message). A history finding is reported once, at the newest commit that adds it.
+UTF-16 files (Git shows them as binary; exports often are) are read whole at that commit.
 Deleting a file does not remove it from history; that takes a rewrite (`git filter-repo`) and a
 force-push, which is a separate decision.
 
