@@ -27,8 +27,9 @@ $manifestPath = Join-Path $repoRoot 'NSP.RepoTools.psd1'
 $failed = $false
 
 function Get-ModuleSourceFile {
-    Get-ChildItem -LiteralPath $repoRoot -Recurse -File -Include '*.ps1', '*.psm1', '*.psd1' |
-        Where-Object { $_.FullName -notmatch '\\\.git\\' }
+    # Windows PowerShell 5.1 does not reliably honor -Include with -LiteralPath.
+    Get-ChildItem -LiteralPath $repoRoot -Recurse -File |
+        Where-Object { $_.Extension -in '.ps1', '.psm1', '.psd1' -and $_.FullName -notmatch '[\\/]\.git[\\/]' }
 }
 
 Write-Host "`n=== Client-reference sweep ===" -ForegroundColor Cyan

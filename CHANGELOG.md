@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Bootstrap publishing fallback supports both toolkit-sibling and legacy parent checkouts.
+- Test-Repo selects PowerShell source files explicitly in Windows PowerShell 5.1 and 7, excluding documentation and Git metadata. A regression fixture covers nested literal paths.
+
 ## 0.1.1
 
 - Fewer false findings in real module code: PublicIPv4 skips `1.x.x.x` (version strings such as `1.4.8.1`, and the `1.2.3.4` placeholder) and `2.5.x.y` (X.509 object identifiers such as `2.5.29.19`); UncPath skips `\\name\.ext` (an escaped dot in a regular expression) and Microsoft's `fabrikam` sample server.

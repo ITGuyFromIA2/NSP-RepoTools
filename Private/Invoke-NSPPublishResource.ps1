@@ -9,9 +9,13 @@ function Invoke-NSPPublishResource {
     )
 
     if (-not (Get-Command Get-NSPSecret -ErrorAction SilentlyContinue)) {
-        $sibling = Join-Path (Split-Path -Parent (Split-Path -Parent $PSScriptRoot)) '..\NSP-Bootstrap\NSP.Bootstrap.psd1'
+        $toolkits = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
+        $sibling = @(
+            (Join-Path $toolkits 'NSP-Bootstrap\NSP.Bootstrap.psd1')
+            (Join-Path (Split-Path -Parent $toolkits) 'NSP-Bootstrap\NSP.Bootstrap.psd1')
+        ) | Where-Object { Test-Path -LiteralPath $_ -PathType Leaf } | Select-Object -First 1
         if (Get-Module -ListAvailable -Name NSP.Bootstrap) { Import-Module NSP.Bootstrap -ErrorAction Stop }
-        elseif (Test-Path -LiteralPath $sibling) { Import-Module $sibling -ErrorAction Stop }
+        elseif ($sibling) { Import-Module $sibling -ErrorAction Stop }
         else { throw 'NSP.Bootstrap (Get-NSPSecret) is required for the API key: Install-Module NSP.Bootstrap' }
     }
     $apiKey = Get-NSPSecret -Name $SecretName -AsPlainText
